@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Email Clustering App
 
-## Getting Started
+An AI-powered Gmail inbox organizer that automatically groups similar emails and allows bulk archiving.
 
-First, run the development server:
+## Features
+
+- 🔐 **Gmail OAuth2 Integration** - Secure authentication with Google
+- 🤖 **AI-Powered Clustering** - Uses TF-IDF and k-means to group similar emails
+- 📧 **Smart Email Fetching** - Retrieves last 200 emails from inbox
+- 🗂️ **Visual Organization** - Clean UI showing email clusters with keywords
+- 📦 **Bulk Archive** - One-click archiving of entire email groups
+
+## Setup
+
+### 1. Google Cloud Configuration
+
+1. Create a project in [Google Cloud Console](https://console.cloud.google.com)
+2. Enable the Gmail API
+3. Create OAuth2 credentials:
+   - Go to "Credentials" → "Create Credentials" → "OAuth client ID"
+   - Application type: Web application
+   - Add redirect URI: `http://localhost:3000/api/auth/callback`
+4. Note down your Client ID and Client Secret
+
+### 2. Environment Variables
+
+Update `.env.local` with your Google credentials:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+GOOGLE_REDIRECT_URI=http://localhost:3000/api/auth/callback
+NEXTAUTH_SECRET=your_nextauth_secret_here
+NEXTAUTH_URL=http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Install & Run
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Visit `http://localhost:3000`
 
-## Learn More
+## How It Works
 
-To learn more about Next.js, take a look at the following resources:
+1. **Authentication**: OAuth2 flow with Gmail API scopes for read and modify access
+2. **Email Fetching**: Retrieves last 200 emails using Gmail API
+3. **Feature Extraction**: Converts email subjects and snippets to TF-IDF vectors
+4. **Clustering**: K-means algorithm groups emails into 3 clusters
+5. **Visualization**: Displays clusters with auto-generated names and keywords
+6. **Archiving**: Removes emails from inbox by removing INBOX label
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Technology Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Next.js 15** with App Router
+- **TypeScript** for type safety
+- **Tailwind CSS** for styling
+- **shadcn/ui** for components
+- **Gmail API** for email operations
+- **Custom ML** for clustering (TF-IDF + k-means)
 
-## Deploy on Vercel
+## API Routes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `GET /api/auth` - Get Gmail OAuth URL
+- `GET /api/auth/callback` - Handle OAuth callback
+- `GET /api/emails` - Fetch and cluster emails
+- `POST /api/emails/archive` - Archive selected emails
