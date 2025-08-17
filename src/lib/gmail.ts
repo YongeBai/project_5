@@ -40,7 +40,9 @@ export class GmailService {
       access_type: 'offline',
       scope: [
         'https://www.googleapis.com/auth/gmail.readonly',
-        'https://www.googleapis.com/auth/gmail.modify'
+        'https://www.googleapis.com/auth/gmail.modify',
+        // For IMAP/SMTP access via EmailEngine
+        'https://mail.google.com'
       ],
     });
   }
@@ -65,6 +67,8 @@ export class GmailService {
       // Fetch details for each message
       for (const message of messages) {
         try {
+          if (!message.id) continue;
+          
           const messageDetail = await this.gmail.users.messages.get({
             userId: 'me',
             id: message.id,
@@ -76,7 +80,7 @@ export class GmailService {
           const date = headers.find((h) => h.name === 'Date')?.value || '';
 
           emailMessages.push({
-            id: message.id,
+            id: message.id!,
             subject,
             snippet: messageDetail.data.snippet || '',
             from,
