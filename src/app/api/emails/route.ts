@@ -19,9 +19,9 @@ export async function GET() {
     // Fetch emails
     const emails = await gmailService.fetchMessages(200);
     
-    // Cluster emails
+    // Cluster emails - request 4 to ensure we get at least 3 non-empty clusters
     const clusterer = new EmailClusterer();
-    const clusters = clusterer.clusterEmails(emails, 3);
+    const clusters = clusterer.clusterEmails(emails, 4);
     
     return NextResponse.json({ clusters });
   } catch (error) {

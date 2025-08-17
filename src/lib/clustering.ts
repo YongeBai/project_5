@@ -93,7 +93,7 @@ export class EmailClusterer {
       
       // Pick next centroid with probability proportional to squared distance
       const totalDist = distances.reduce((a, b) => a + b, 0);
-      let random = Math.random() * totalDist;
+      const random = Math.random() * totalDist;
       let cumulative = 0;
       let selectedIdx = 0;
       
@@ -259,17 +259,21 @@ export class EmailClusterer {
   clusterEmails(emails: EmailMessage[], numClusters = 3): EmailCluster[] {
     if (emails.length === 0) return [];
     
+    // Ensure we try to get at least 3 clusters
+    const targetClusters = Math.max(numClusters, 3);
+    const actualClusters = Math.min(targetClusters, emails.length);
+    
     // Create feature vectors from subject + snippet
     const documents = emails.map(email => `${email.subject} ${email.snippet}`);
-    const tfidfMatrix = this.calculateTFIDF(documents);
+    const featureVectors = this.createFeatureVectors(documents);
     
     // Perform clustering
-    const assignments = this.kMeans(tfidfMatrix, Math.min(numClusters, emails.length));
+    const assignments = this.kMeans(featureVectors, actualClusters);
     
     // Group emails by cluster
     const clusters: EmailCluster[] = [];
     
-    for (let i = 0; i < numClusters; i++) {
+    for (let i = 0; i < actualClusters; i++) {
       const clusterEmails = emails.filter((_, index) => assignments[index] === i);
       
       if (clusterEmails.length > 0) {
